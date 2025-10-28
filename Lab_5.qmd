@@ -1,0 +1,211 @@
+---
+title: "Lab 5 - Working with NEON Metagenome Assembled Genomes"
+author: "Katelynn Burns"
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: cosmo
+    embed-resources: true
+execute:
+  echo: true
+  freeze: auto
+---
+
+## On the Computer
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(janitor)
+library(DT)
+```
+
+## kable
+
+```{r}
+iris_setosa <- iris %>% 
+filter(Species == "setosa") %>% 
+filter(Sepal.Length > 5)
+```
+
+```{r}
+library(knitr)
+kable(iris_setosa)
+```
+
+## DT
+
+```{r}
+library(DT)
+datatable(iris_setosa)
+```
+
+```{r}
+datatable(
+  iris %>% 
+    filter(Species == "setosa") %>% 
+    filter(Sepal.Length > 5)
+)
+```
+
+```{r}
+iris_setosa <- iris %>% 
+  filter(Species == "setosa") %>% 
+  filter(Sepal.Length > 5)
+
+datatable(iris_setosa)
+```
+
+## Examples using the NEON data table
+
+```{r}
+NEON_MAGs <- read_tsv("/work/pi_bio678_umass_edu/data_NEON/exported_img_bins_Gs0166454_NEON.tsv")
+```
+
+```{r}
+head(NEON_MAGs)
+```
+
+```{r}
+str(NEON_MAGs)
+```
+
+```{r}
+NEON_MAGs <- NEON_MAGs |> janitor::clean_names()
+```
+
+```{r}
+NEON_MAGs %>% 
+  count(bin_quality, sort = TRUE) 
+```
+
+```{r}
+kable(
+  NEON_MAGs %>% 
+   count(bin_quality) 
+)
+```
+
+```{r}
+datatable(
+  NEON_MAGs%>% 
+    filter(bin_quality == "HQ")
+)
+```
+
+```{r}
+kable(
+NEON_MAGs %>% 
+  select(c(gtdb_taxonomy_lineage, total_number_of_bases)) %>% 
+  filter(total_number_of_bases > 10000000)
+)
+```
+
+```{r}
+datatable(
+NEON_MAGs %>% 
+  filter(str_detect(gtdb_taxonomy_lineage, 'Bacteroidota'))
+)
+```
+
+```{r}
+datatable(
+NEON_MAGs %>% 
+  filter(str_detect(genome_name, 'Yellowstone NP'))
+)
+```
+
+```{r}
+NEON_MAGs_tax <- NEON_MAGs %>% 
+  separate(gtdb_taxonomy_lineage, c("domain", "phylum", "class", "order", "family", "genus"), "; ", remove = FALSE) 
+```
+
+```{r}
+datatable(
+  NEON_MAGs_tax %>% 
+    count(phylum, sort = TRUE)
+)
+```
+
+```{r}
+NEON_MAGs_tax_sample <- NEON_MAGs_tax %>% 
+  # Get rid of the the common string "Soil microbial communities from "
+  mutate_at("genome_name", str_replace, "Terrestrial soil microbial communities from ", "") %>% 
+  # Use the first `-` to split the column in two
+  separate(genome_name, c("site","sample_name"), " - ") %>% 
+  # Get rid of the the common string "S-comp-1"
+  mutate_at("sample_name", str_replace, "-comp-1", "") %>%
+  # separate the Sample Name into Site ID and plot info
+  separate(sample_name, c("site_ID","subplot.layer.date"), "_", remove = FALSE,) %>% 
+  # separate the plot info into 3 columns
+  separate(`subplot.layer.date`, c("subplot", "layer", "date"), "-") 
+```
+
+```{r}
+datatable(
+  NEON_MAGs_tax_sample %>% 
+    count(site, sort = TRUE)
+)
+```
+
+## Exercises
+
+### Exercise 1
+
+Use view(iris) to see the whole data table. Subset the table based on a different species than was used in the example. Display the table using DT::datatable.
+
+```{r}
+view(iris)
+```
+
+```{r}
+versicolor_data <- subset(iris, Species == "versicolor")
+```
+
+```{r}
+datatable(versicolor_data)
+```
+
+### Exercise 2
+
+Display using DT::datatable the NEON MAGs from the individual assemblies that have at least 1 16S rRNA.
+
+```{r}
+NEON_MAGs |>
+  filter(x16s_r_rna >= 1) |>
+  datatable()
+```
+
+### Exercise 3
+
+Display a table of the MAGs from Lower Tombigbee with only the columns for the genome_name, gtdb_taxonomy_lineage, and estimated MAG genome size (total_number_of_bases).
+
+```{r}
+lower_tombigbee_MAGs <- NEON_MAGs %>%
+  filter(str_detect(genome_name, 'Lower Tombigbee'))%>%
+  select(genome_name, gtdb_taxonomy_lineage, total_number_of_bases)
+DT::datatable(lower_tombigbee_MAGs)
+```
+
+### Exercise 4
+
+Display a table with the Class counts at Lyndon B. Johnson National Grasslands.
+
+```{r}
+LBJ_class_counts <- NEON_MAGs_tax %>%
+  filter(str_detect(genome_name, 'Lyndon B. Johnson National Grassland')) %>%
+  count(class, sort = TRUE)
+DT::datatable(LBJ_class_counts)
+```
+
+### Exercise 5
+
+Display a table with the counts for the Phylum Actinomycetota at each Site.
+
+```{r}
+actino_counts <- NEON_MAGs_tax %>%
+  filter(phylum == "Actinomycetota") %>%
+  count(genome_name, sort = TRUE)
+DT::datatable(actino_counts)
+```

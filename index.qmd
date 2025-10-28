@@ -16,8 +16,4 @@ execute:
 
 ![](glowcover.jpg)
 
-[Lab 3](https://ood.unity.rc.umass.edu/rnode/ceewater-cpu004.unity.rc.umass.edu/46572/files/Lab_3.html)
-
-[Lab 4](https://ood.unity.rc.umass.edu/rnode/ceewater-cpu004.unity.rc.umass.edu/46572/files/Lab_4.html)
-
-[Lab 5](https://ood.unity.rc.umass.edu/rnode/ceewater-cpu007.unity.rc.umass.edu/33487/files/Lab_5.html)
+[Lab 5](https://ood.unity.rc.umass.edu/rnode/ceewater-cpu004.unity.rc.umass.edu/38373/files/Lab_5.html)
