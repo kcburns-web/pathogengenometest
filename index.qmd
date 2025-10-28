@@ -14,7 +14,7 @@ execute:
 
 ## About Me
 
-![](images/glowcover.jpg)
+![](glowcover.jpg)
 
 [Lab 3](https://ood.unity.rc.umass.edu/rnode/ceewater-cpu004.unity.rc.umass.edu/46572/files/Lab_3.html)
 
