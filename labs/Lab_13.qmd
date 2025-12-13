@@ -20,6 +20,8 @@ execute:
 
 1.  Start by saving a .qmd file for Lab 13 to the folder that represents your GitHub directory. From your index.qmd file create a link to the rendered html version of Lab 13. Push these changes to your GitHub repository and make sure you can see the linked version of Lab 13.
 
+    Completed.
+
 2.  Upload to co-pilot the `NEON_soilMAGs_soilChem.csv` file. Then ask for suggestions in the types of analysis you can do or create a prompt using one of the four categories above.
 
 3.  Iterate with co-pilot to create a comprehensive analysis of the category area.
