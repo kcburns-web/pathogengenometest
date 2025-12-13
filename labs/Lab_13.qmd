@@ -20,8 +20,6 @@ execute:
 
 1.  Start by saving a .qmd file for Lab 13 to the folder that represents your GitHub directory. From your index.qmd file create a link to the rendered html version of Lab 13. Push these changes to your GitHub repository and make sure you can see the linked version of Lab 13.
 
-    Completed.
-
 2.  Upload to co-pilot the `NEON_soilMAGs_soilChem.csv` file. Then ask for suggestions in the types of analysis you can do or create a prompt using one of the four categories above.
 
 3.  Iterate with co-pilot to create a comprehensive analysis of the category area.
@@ -29,3 +27,77 @@ execute:
 4.  Add explanations for the different types of analyses. For example what is Shannon Diversity? The final report should be something you could give another student or person in your lab.
 
 5.  Push the final report to GitHub. Submit a link to your website (not your repository)
+
+## Environmental Correlations Analysis with NEON Soil MAGs
+
+### Data and Prerequisites
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(DT)
+library(viridis)
+library(janitor)
+library(plotly)
+library(respirometry)
+library(vegan)
+```
+
+```{r}
+df <- read_csv("NEON_soilMAGs_soilChem.csv")
+
+# Select relevant columns
+df <- df %>%
+  filter(!is.na(genomicsSampleID)) %>%
+  mutate(siteID = site_ID,
+         sampleID = genomicsSampleID) %>%
+  select(sampleID, siteID, phylum, soilMoisture, soilTemp, soilInWaterpH, soilInCaClpH, elevation)
+```
+
+### Aggregate Data by Sample
+
+```{r}
+tax_profile <- df %>%
+  group_by(sampleID, phylum) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  pivot_wider(names_from = phylum, values_from = count, values_fill = 0)
+
+# Merge with environmental data
+env_data <- df %>% select(sampleID, soilMoisture, soilTemp, soilInWaterpH, soilInCaClpH, elevation) %>% distinct()
+merged_data <- left_join(tax_profile, env_data, by = "sampleID")
+```
+
+###  Correlation Analysis
+
+```{r}
+# Compute diversity metrics
+abundance_matrix <- merged_data %>% select(-sampleID, -soilMoisture, -soilTemp, -soilInWaterpH, -soilInCaClpH, -elevation)
+shannon <- diversity(abundance_matrix, index = "shannon")
+simpson <- diversity(abundance_matrix, index = "simpson")
+richness <- specnumber(abundance_matrix)
+
+# Combine with environmental data
+corr_df <- merged_data %>% select(sampleID, soilMoisture, soilTemp, soilInWaterpH, soilInCaClpH, elevation) %>%
+  mutate(Shannon = shannon, Simpson = simpson, Richness = richness)
+
+# Correlation plot
+ggplot(corr_df, aes(x = soilMoisture, y = Shannon)) +
+  geom_point() + geom_smooth(method = "lm") +
+  labs(title = "Correlation: Soil Moisture vs Shannon Diversity")
+```
+
+### **Canonical Correspondence Analysis (**CCA)
+
+```{r}
+# Prepare matrices
+abundance_matrix <- merged_data %>% select(-sampleID, -soilMoisture, -soilTemp, -soilInWaterpH, -soilInCaClpH, -elevation)
+env_matrix <- merged_data %>% select(soilMoisture, soilTemp, soilInWaterpH, soilInCaClpH, elevation)
+
+# Perform CCA
+cca_model <- cca(abundance_matrix ~ ., data = env_matrix)
+summary(cca_model)
+```
+
+### Summary
+
+It appears my data was merged incorrectly. After trying my own version this lab communicating with AI, it was clear something was wrong. All my plots were just showing straight lines along the x-axis. I then resorted to walking through the tutorial where most of the code didn't work with my data either. After hours of trying to troubleshoot and re-merge the data so that it includes proper phylum and MAGs sample ID information, I have been unsuccessful.
