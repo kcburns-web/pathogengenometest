@@ -1,0 +1,29 @@
+---
+title: "Lab 13 - Creating a detailed report with explanations from the NEON MAG data"
+author: "Katelynn Burns"
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: cosmo
+    embed-resources: true
+execute:
+  echo: true
+  freeze: auto
+---
+
+```{r}
+.libPaths(c("/home/kcburns_umass_edu/R/x86_64-pc-linux-gnu-library/4.5", "/usr/local/lib/R/site-library", "/usr/local/lib/R/library"))
+```
+
+## Exercises
+
+1.  Start by saving a .qmd file for Lab 13 to the folder that represents your GitHub directory. From your index.qmd file create a link to the rendered html version of Lab 13. Push these changes to your GitHub repository and make sure you can see the linked version of Lab 13.
+
+2.  Upload to co-pilot the `NEON_soilMAGs_soilChem.csv` file. Then ask for suggestions in the types of analysis you can do or create a prompt using one of the four categories above.
+
+3.  Iterate with co-pilot to create a comprehensive analysis of the category area.
+
+4.  Add explanations for the different types of analyses. For example what is Shannon Diversity? The final report should be something you could give another student or person in your lab.
+
+5.  Push the final report to GitHub. Submit a link to your website (not your repository)
